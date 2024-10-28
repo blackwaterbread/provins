@@ -1,0 +1,26 @@
+{
+  "name": "provins",
+  "version": "0.1.0",
+  "description": "Manage your mod list for Arma Reforger with ease.",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "tsx src/index.ts",
+    "build": "node build.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.7.7",
+    "chalk": "4.1.2",
+    "commander": "^12.1.0",
+    "node-html-parser": "^6.1.13"
+  },
+  "devDependencies": {
+    "@types/node": "^22.8.1",
+    "@vercel/ncc": "^0.38.2",
+    "rimraf": "^6.0.1",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3"
+  }
+}
