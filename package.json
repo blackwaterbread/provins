@@ -1,11 +1,11 @@
 {
   "name": "provins",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Manage your mod list for Arma Reforger with ease.",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "tsx src/index.ts",
-    "build": "node build.js"
+    "build": "node build.js && pkg dist/provins.js"
   },
   "keywords": [],
   "author": "",
@@ -14,10 +14,12 @@
     "axios": "^1.7.7",
     "chalk": "4.1.2",
     "commander": "^12.1.0",
-    "node-html-parser": "^6.1.13"
+    "node-html-parser": "^6.1.13",
+    "readline-sync": "^1.4.10"
   },
   "devDependencies": {
     "@types/node": "^22.8.1",
+    "@types/readline-sync": "^1.4.8",
     "@vercel/ncc": "^0.38.2",
     "rimraf": "^6.0.1",
     "tsx": "^4.19.2",

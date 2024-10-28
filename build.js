@@ -2,9 +2,12 @@ const fs = require('fs');
 const { rimrafSync } = require('rimraf');
 const revision = require('child_process');
 
+const dirPath = './dist';
 const filename = 'provins.js';
 
-rimrafSync(`./dist/${filename}`);
+rimrafSync(`./dist`);
+fs.mkdirSync(dirPath, { recursive: true });
+
 require('@vercel/ncc')(`${__dirname}/src/index.ts`, {
     // provide a custom cache path or disable caching
     cache: "./custom/cache/path" | false,
@@ -27,8 +30,6 @@ require('@vercel/ncc')(`${__dirname}/src/index.ts`, {
     quiet: false, // default
     debugLog: false // default
 }).then(({ code, map, assets }) => {
-    const dirPath = './dist';
-
     if (!fs.existsSync(dirPath)) {
         fs.mkdirSync(dirPath, { recursive: true });
     }

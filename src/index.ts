@@ -3,6 +3,7 @@ import chalk from 'chalk';
 import axios from 'axios';
 import { program } from 'commander';
 import { parse } from 'node-html-parser';
+import readlineSync from 'readline-sync';
 import app from '../package.json';
 
 const REFORGER_WORKSHOP_URL = 'https://reforger.armaplatform.com/workshop';
@@ -14,7 +15,7 @@ program
     .description(app.description)
     .version(app.version)
     .option('-t, --target <path>', 'json file path')
-    // .option('-v, --verbose', 'print detailed information')
+// .option('-v, --verbose', 'print detailed information')
 
 async function main() {
     program.parse();
@@ -35,18 +36,12 @@ async function main() {
 
     let mods = [];
     try {
-        if (Array.isArray(json)) {
-            mods = json;
+        if (Array.isArray(json.game.mods)) {
+            mods = [...json.game.mods];
         }
 
         else {
-            if (Array.isArray(json.game.mods)) {
-                mods = json.game.mods;
-            }
-
-            else {
-                throw new Error('Invalid Json');
-            }
+            throw new Error('Invalid Json');
         }
     }
 
@@ -56,6 +51,8 @@ async function main() {
     }
 
     console.log(`There are ${chalk.green(mods.length)} mods.`);
+    const allgoodMod: Mod[] = [];
+    const outdatedMod: Mod[] = [];
     const updatedMod: Mod[] = [];
     const deletedMod: Mod[] = [];
 
@@ -85,14 +82,14 @@ async function main() {
 
                 const { asset } = props.props.pageProps;
                 if (mod.version && (mod.version !== asset.currentVersionNumber)) {
-                    const uMod = mod;
-                    uMod.version = `${mod.version},${asset.currentVersionNumber}`;
-                    updatedMod.push(mod);
+                    outdatedMod.push(mod);
+                    updatedMod.push({ ...mod, version: asset.currentVersionNumber });
                     console.log(`🔔 [${mod.modId}|${mod.name}]: Outdated`);
                 }
 
                 else {
                     console.log(`✅ [${mod.modId}|${mod.name}]: No changes`);
+                    allgoodMod.push(mod);
                 }
             }
 
@@ -112,18 +109,57 @@ async function main() {
         }
     }
 
+    console.log();
+    console.log('✨ Tasks completed.');
+    console.log(`  * ✅ Good Standing: ${mods.length - outdatedMod.length - deletedMod.length}`);
+
+    console.log(`  * 🔔 Outdated: ${outdatedMod.length}`);
+    outdatedMod.forEach((v, i) => {
+        console.log(`    - ${v.modId}, ${chalk.yellow(v.version)} ➜ ${chalk.green(updatedMod[i].version)} ${v.name}`);
+    });
+
+    console.log(`  * ❌ Unavailable: ${deletedMod.length}`);
+    deletedMod.forEach(x => {
+        console.log(`    - ${x.modId}, ${x.name}`);
+    });
+
+    let flagUpdate = false, flagRemove = false;
     console.log()
-    console.log('Tasks completed.')
-    console.log(`✅ Good Standing: ${mods.length - updatedMod.length - deletedMod.length}`)
-    console.log(`🔔 Outdated: ${updatedMod.length}`)
-    for (const mod of updatedMod) {
-        const ver = mod.version!.split(',');
-        console.log(`    - ${mod.modId}, ${chalk.yellow(ver[0])} ➜ ${chalk.green(ver[1])} ${mod.name}`);
+    if (updatedMod.length > 0) {
+        if (readlineSync.keyInYN(`Do you want to ${chalk.yellow('renew')} the ${chalk.yellow(updatedMod.length)} outdated mods?`)) {
+            flagUpdate = true;
+        }
     }
 
-    console.log(`❌ Unavailable: ${deletedMod.length}`)
-    for (const mod of deletedMod) {
-        console.log(`    - ${mod.modId}, ${mod.name}`);
+    if (deletedMod.length > 0) {
+        if (readlineSync.keyInYN(`Do you want to ${chalk.red('remove')} the ${chalk.red(deletedMod.length)} unavailable mods?`)) {
+            flagRemove = true;   
+        }
+    }
+
+    if (!(flagUpdate || flagRemove)) {
+        console.log('😅 There are nothing to do.');
+        process.exit(0);
+    }
+
+    const entireMods = [...allgoodMod];
+    if (flagUpdate) entireMods.push(...updatedMod);
+    else            entireMods.push(...outdatedMod);
+
+    if (!flagRemove) entireMods.push(...deletedMod);
+
+    const config = JSON.parse(JSON.stringify(json));
+    config.game.mods = entireMods.sort((a, b) => a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1);
+
+    try {
+        fs.writeFileSync(`${path}.bak`, JSON.stringify(json, null, 4));
+        fs.writeFileSync(path, JSON.stringify(config, null, 4));
+        console.log(chalk.green('👍 Your configs have been saved, Goodbye!'));
+    }
+
+    catch (fileWriteError) {
+        console.error(fileWriteError);
+        process.exit(0);
     }
 }
 
