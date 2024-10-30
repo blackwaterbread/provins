@@ -1,7 +1,7 @@
 # Provins
 Manage your mod list for Arma Reforger with ease.
 
-<img width="960" alt="image" src="https://github.com/user-attachments/assets/cbe84630-5c5c-478f-a9d0-804ea6ea5755">
+<img width="960" alt="image" src="https://github.com/user-attachments/assets/1cd4292a-43b4-4174-aa0a-7051be9b464b">
 
 ## Featues
 * Check for updated mods
@@ -20,21 +20,27 @@ Follow the [Release](https://github.com/blackwaterbread/provins/releases) to dow
 ```
 
 ## Usage
+```
+> provins json_path options
+```
 ### Binary (Windows)
 ```
-> ./provins-win-x64.exe -t "your-settings.json"
+> ./provins-win-x64.exe your-settings.json
 ```
 ### Binary (Linux)
 ```
 > chmod +x provins-linux-x64
-> provins-linux-x64 -t "your-settings.json"
+> provins-linux-x64 your-settings.json
 ```
 ### Binary (macOS)
 * Trust provins app at the settings
 ```
-> ./provins-macos-x64 -t "your-settings.json"
+> ./provins-macos-x64 your-settings.json
 ```
 ### Manual
 ```
-> node provins.js -t "your-settings.json"
+> node provins.js your-settings.json
 ```
+
+## Options
+* -y, --yes | don't ask when modifying json (default: false)
