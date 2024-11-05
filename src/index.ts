@@ -70,13 +70,11 @@ program
                         throw new Error(`Cannot get workshop data: [${mod.modId}, ${mod.name}]`);
                     }
     
-                    const props = JSON.parse(nextRes);
-                    /*
-                    if (!props.props.pageProps.asset || !props.props.pageProps.pathId) {
-                        deletedMod.push(mod);
+                    if (req.request.path === '/errors/asset-blocked') {
+                        throw new Error('Banned');
                     }
-                    */
-    
+
+                    const props = JSON.parse(nextRes);
                     const { asset } = props.props.pageProps;
                     if (mod.version && (mod.version !== asset.currentVersionNumber)) {
                         outdatedMod.push(mod);
@@ -90,12 +88,17 @@ program
                     }
                 }
     
-                catch (axiosError) {
-                    const statusCode = (axiosError as any)?.response.status;
+                catch (requestError) {
+                    const statusCode = (requestError as any)?.response?.status;
     
                     if (statusCode || statusCode === 404) {
                         deletedMod.push(mod);
                         console.log(`❌ [${mod.modId}|${mod.name}]: Unavailable`);
+                    }
+
+                    else if ((requestError as any).message === 'Banned') {
+                        deletedMod.push(mod);
+                        console.log(`❌ [${mod.modId}|${mod.name}]: Banned`);
                     }
     
                     else {
