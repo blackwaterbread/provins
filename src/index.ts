@@ -26,8 +26,6 @@ program
     
         catch (fileReadError) {
             console.error(chalk.red(fileReadError));
-            console.log(chalk.yellow('Try specifying the path to the JSON file with the -t option.'));
-            console.log(chalk.yellow('ex) node hermes.js -t "./server.json"'));
             process.exit(0);
         }
     
